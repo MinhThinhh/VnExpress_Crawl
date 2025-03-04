@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  scrapy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scrapy_container
+    depends_on:
+      - mysql
+      - mongodb
+    volumes:
+      - ../data:/app/data
+      - ../logs:/app/logs
+    networks:
+      - scrapy_network
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: scrapy_db
+      MYSQL_USER: scrapy_user
+      MYSQL_PASSWORD: scrapy_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - scrapy_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - scrapy_network
+
+volumes:
+  mysql_data:
+  mongodb_data:
+
+networks:
+  scrapy_network:
